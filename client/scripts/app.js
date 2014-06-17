@@ -6,7 +6,7 @@
 // //   createdAt: results.createdAt
 // // };
 //
-test = function(str) {
+var xssAttack = function(str) {
   var a = /([.?*+^$[\]'"\\(){}<>|-])/g;
   return a.test(str);
 };
@@ -21,10 +21,11 @@ var app = {
       var username = $(this).text();
       app.addFriend(username);
     });
-
-    $('.submit').on('click', function() {
+    $('button').on('click', function() {
       var userText = $('.submitText').val();
-      app.handleSubmit(userText);
+      if(userText !== '') {
+        app.handleSubmit(userText);
+      }
     });
 
   },
@@ -46,16 +47,14 @@ var app = {
     $.ajax({
       url: this.server,
       type: 'GET',
-      data: message,
+      data: message + '&order=-createdAt',
       contentType: 'application/json',
       success: function (data) {
         console.log('chatterbox: Message sent');
         var results = data.results;
-        var message = {};
         for ( var i = 0; i < results.length; i++) {
-          //include typechecking to protect XSS attacks
-          if (!test(results[i].text)){
-          app.addMessage(results[i]);
+          if (!xssAttack(results[i].text)){
+            app.addMessage(results[i]);
           }
         }
       },
@@ -82,11 +81,14 @@ var app = {
     app.friends.push(user);
   },
   handleSubmit: function(text){
+    //XSS DEFENSE NEEDED
     var submission = {};
-    submission.username = //window.location.search  parse this
+    submission.username = window.location.search.slice(10);
     submission.text = text;
-    submission.roomname = //come up with a way to save and access current roomdif
-    app.send(message);
+    submission.roomname = 'placeholder';
+    app.send(submission);
   }
 };
-app.init();
+$(document).on('ready', function() {
+  app.init();
+});
