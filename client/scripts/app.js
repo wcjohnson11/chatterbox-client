@@ -6,6 +6,8 @@
 // //   createdAt: results.createdAt
 // // };
 //
+//
+//Additional lines for merge
 var xssAttack = function(str) {
   var a = /([.?*+^$[\]'"\\(){}<>|-])/g;
   return a.test(str);
