@@ -48,6 +48,8 @@ var app = {
       success: function (data) {
         console.log('chatterbox: Messages received');
         var results = data.results;
+        app.rooms = _.uniq(_.pluck(results, 'roomname'));
+        debugger;
         for ( var i = 0; i < results.length; i++) {
           if (!xssAttack(results[i].text)){
             app.addMessage(results[i]);
@@ -62,6 +64,10 @@ var app = {
           var user = ($(this).parent().data('username'));
          app.addFriend(user);
          $(this).parent().addClass('friend');
+        });
+        //Appending rooms to #roomSelect in li's
+        _.each(app.rooms, function(room){
+          $('<li>' + room + '</li>').appendTo($('#roomSelect'));
         });
       }
     });
