@@ -48,8 +48,11 @@ var app = {
       success: function (data) {
         console.log('chatterbox: Messages received');
         var results = data.results;
-        app.rooms = _.uniq(_.pluck(results, 'roomname'));
-        debugger;
+        app.rooms = _.filter(_.uniq(_.pluck(results, 'roomname')), function(room){
+          if (room !== undefined){
+            return room;
+          }
+        });
         for ( var i = 0; i < results.length; i++) {
           if (!xssAttack(results[i].text)){
             app.addMessage(results[i]);
