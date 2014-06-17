@@ -43,11 +43,11 @@ var app = {
       }
     });
   },
-  fetch: function(message) {
+  fetch: function() {
     $.ajax({
       url: this.server,
       type: 'GET',
-      data: message + '&order=-createdAt',
+      data: '&order=-createdAt',
       contentType: 'application/json',
       success: function (data) {
         console.log('chatterbox: Message sent');
@@ -67,7 +67,7 @@ var app = {
     $('#chats').empty();
   },
   addMessage: function(message) {
-    var $msg = $('<div></div>').addClass('message');
+    var $msg = $('<div></div>').addClass('chat');
     $('<h3>' + message.username + '</h3>').addClass('username').prependTo($msg);
     $('<p>' + message.text + ' in ' + message.roomname + '</p>').appendTo($msg);
     $msg.appendTo('#chats');
