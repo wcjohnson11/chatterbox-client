@@ -17,10 +17,6 @@ var app = {
   friends: [],
   init: function(){
     app.fetch();
-    $('.username').on('click', function(){
-      var username = $(this).text();
-      app.addFriend(username);
-    });
     $('button').on('click', function() {
       var userText = $('.submitText').val();
       if(userText !== '') {
@@ -50,7 +46,7 @@ var app = {
       data: '&order=-createdAt',
       contentType: 'application/json',
       success: function (data) {
-        console.log('chatterbox: Message sent');
+        console.log('chatterbox: Messages received');
         var results = data.results;
         for ( var i = 0; i < results.length; i++) {
           if (!xssAttack(results[i].text)){
@@ -60,6 +56,13 @@ var app = {
       },
       error: function (data) {
         console.error('chatterbox: Failed to send message');
+      },
+      complete: function() {
+        $('.username').on('click', function(){
+          var user = ($(this).parent().data('username'));
+         app.addFriend(user);
+         $(this).parent().addClass('friend');
+        });
       }
     });
   },
@@ -67,7 +70,7 @@ var app = {
     $('#chats').empty();
   },
   addMessage: function(message) {
-    var $msg = $('<div></div>').addClass('chat');
+    var $msg = $('<div></div>').addClass('chat').data('username', message.username);
     $('<h3>' + message.username + '</h3>').addClass('username').prependTo($msg);
     $('<p>' + message.text + ' in ' + message.roomname + '</p>').appendTo($msg);
     $msg.appendTo('#chats');
