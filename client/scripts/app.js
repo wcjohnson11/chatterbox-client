@@ -17,6 +17,16 @@ var app = {
   friends: [],
   init: function(){
     app.fetch();
+    $('.username').on('click', function(){
+      var username = $(this).text();
+      app.addFriend(username);
+    });
+
+    $('.submit').on('click', function() {
+      var userText = $('.submitText').val();
+      app.handleSubmit(userText);
+    });
+
   },
   send: function(message) {
     $.ajax({
@@ -60,7 +70,6 @@ var app = {
   addMessage: function(message) {
     var $msg = $('<div></div>').addClass('message');
     $('<h3>' + message.username + '</h3>').addClass('username').prependTo($msg);
-    // debugger;
     $('<p>' + message.text + ' in ' + message.roomname + '</p>').appendTo($msg);
     $msg.appendTo('#chats');
   },
@@ -71,6 +80,13 @@ var app = {
   },
   addFriend: function(user) {
     app.friends.push(user);
+  },
+  handleSubmit: function(text){
+    var submission = {};
+    submission.username = //window.location.search  parse this
+    submission.text = text;
+    submission.roomname = //come up with a way to save and access current roomdif
+    app.send(message);
   }
 };
 app.init();
