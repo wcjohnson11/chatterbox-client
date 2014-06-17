@@ -5,12 +5,18 @@
 // //   roomname: results.roomname,
 // //   createdAt: results.createdAt
 // // };
-
+//
+test = function(str) {
+  var a = /([.?*+^$[\]'"\\(){}<>|-])/g;
+  return a.test(str);
+};
 
 var app = {
   server: 'https://api.parse.com/1/classes/chatterbox',
+  rooms: [],
+  friends: [],
   init: function(){
-
+    app.fetch();
   },
   send: function(message) {
     $.ajax({
@@ -37,7 +43,10 @@ var app = {
         var results = data.results;
         var message = {};
         for ( var i = 0; i < results.length; i++) {
+          //include typechecking to protect XSS attacks
+          if (!test(results[i].text)){
           app.addMessage(results[i]);
+          }
         }
       },
       error: function (data) {
@@ -49,9 +58,19 @@ var app = {
     $('#chats').empty();
   },
   addMessage: function(message) {
-    var msg = $('<div></div>').addClass('message');
-    $('<h3>' + message.username + '</h3>').prependTo(msg);
-    $('<p>' + message.text + ' in ' + message.roomname + '</p>').appendTo(msg);
-    msg.appendTo('#chats');
+    var $msg = $('<div></div>').addClass('message');
+    $('<h3>' + message.username + '</h3>').addClass('username').prependTo($msg);
+    // debugger;
+    $('<p>' + message.text + ' in ' + message.roomname + '</p>').appendTo($msg);
+    $msg.appendTo('#chats');
+  },
+  addRoom: function(roomName) {
+    var $room = $('<div>'+ roomName + '</div>').addClass('room');
+    $room.appendTo('#roomSelect');
+    app.rooms.push(roomName);
+  },
+  addFriend: function(user) {
+    app.friends.push(user);
   }
 };
+app.init();
