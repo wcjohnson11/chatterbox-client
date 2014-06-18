@@ -18,13 +18,15 @@ var app = {
   rooms: [],
   friends: [],
   init: function(){
-    app.fetch();
     $('button').on('click', function() {
       var userText = $('.submitText').val();
       if(userText !== '') {
         app.handleSubmit(userText);
       }
     });
+
+    setInterval(function(){
+      app.fetch();}, 1000);
 
   },
   send: function(message) {
@@ -41,7 +43,8 @@ var app = {
       }
     });
   },
-  fetch: function() {
+  fetch: function(room) {
+    var datum =
     $.ajax({
       url: this.server,
       type: 'GET',
@@ -50,6 +53,7 @@ var app = {
       success: function (data) {
         console.log('chatterbox: Messages received');
         var results = data.results;
+        app.clearMessages();
         app.rooms = _.filter(_.uniq(_.pluck(results, 'roomname')), function(room){
           if (room !== undefined){
             return room;
@@ -65,20 +69,14 @@ var app = {
         console.error('chatterbox: Failed to send message');
       },
       complete: function() {
-        $('.username').on('click', function(){
-          var user = ($(this).parent().data('username'));
-         app.addFriend(user);
-         $(this).parent().addClass('friend');
-        });
-        //Appending rooms to #roomSelect in li's
-        _.each(app.rooms, function(room){
-          $('<li>' + room + '</li>').appendTo($('#roomSelect'));
-        });
-      }
+          app.manageFriend();
+          app.renderRooms();
+        }
     });
   },
   clearMessages: function() {
     $('#chats').empty();
+    $('#roomSelect').empty();
   },
   addMessage: function(message) {
     var $msg = $('<div></div>').addClass('chat').data('username', message.username);
@@ -86,13 +84,22 @@ var app = {
     $('<p>' + message.text + ' in ' + message.roomname + '</p>').appendTo($msg);
     $msg.appendTo('#chats');
   },
+  renderRooms: function() {
+   _.each(app.rooms, function(room){
+     $('<li>' + room + '</li>').appendTo($('#roomSelect'));
+   });
+  },
   addRoom: function(roomName) {
     var $room = $('<div>'+ roomName + '</div>').addClass('room');
     $room.appendTo('#roomSelect');
     app.rooms.push(roomName);
   },
-  addFriend: function(user) {
-    app.friends.push(user);
+ manageFriend: function() {
+    $('.username').on('click', function(){
+          var user = ($(this).parent().data('username'));
+          $(this).parent().addClass('friend');
+          app.friends.push(user);
+        });
   },
   handleSubmit: function(text){
     //XSS DEFENSE NEEDED
