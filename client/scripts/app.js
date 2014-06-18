@@ -15,6 +15,7 @@ var xssAttack = function(str) {
 
 var app = {
   server: 'https://api.parse.com/1/classes/chatterbox',
+  currentRoom: '',
   rooms: [],
   friends: [],
   init: function(){
@@ -43,8 +44,7 @@ var app = {
       }
     });
   },
-  fetch: function(room) {
-    var datum =
+  fetch: function() {
     $.ajax({
       url: this.server,
       type: 'GET',
@@ -59,6 +59,9 @@ var app = {
             return room;
           }
         });
+        if (app.currentRoom) {
+          results = _.where(results, {roomname: app.currentRoom});
+        }
         for ( var i = 0; i < results.length; i++) {
           if (!xssAttack(results[i].text)){
             app.addMessage(results[i]);
@@ -70,7 +73,9 @@ var app = {
       },
       complete: function() {
           app.manageFriend();
-          app.renderRooms();
+          app.makeRooms();
+          app.renderRoom();
+          app.checkFriendClass();
         }
     });
   },
@@ -84,20 +89,37 @@ var app = {
     $('<p>' + message.text + ' in ' + message.roomname + '</p>').appendTo($msg);
     $msg.appendTo('#chats');
   },
-  renderRooms: function() {
+  makeRooms: function() {
    _.each(app.rooms, function(room){
-     $('<li>' + room + '</li>').appendTo($('#roomSelect'));
+     $('<li>' + room + '</li>').addClass('room').appendTo($('#roomSelect'));
    });
+  },
+  renderRoom: function() {
+    $('.room').on('click', function() {
+      app.currentRoom = ($(this).text());
+      app.fetch();
+    });
   },
   addRoom: function(roomName) {
     var $room = $('<div>'+ roomName + '</div>').addClass('room');
     $room.appendTo('#roomSelect');
     app.rooms.push(roomName);
   },
- manageFriend: function() {
+  checkFriendClass: function(){
+    $('#chats').find('div').each(function(int, el) {
+      var $el = $(el);
+      for (var i = 0; i < app.friends.length; i++) {
+        if (app.friends[i] === $el.data('username')) {
+          $el.addClass('friend');
+        }
+      }
+    });
+  },
+  manageFriend: function() {
     $('.username').on('click', function(){
           var user = ($(this).parent().data('username'));
           $(this).parent().addClass('friend');
+         // console.log($('.friend'));
           app.friends.push(user);
         });
   },
@@ -106,7 +128,7 @@ var app = {
     var submission = {};
     submission.username = window.location.search.slice(10);
     submission.text = text;
-    submission.roomname = 'placeholder';
+    submission.roomname = app.currentRoom;
     app.send(submission);
   }
 };
