@@ -1,4 +1,4 @@
-// YOUR CODE HERE:
+//Data Template
 // var message = {
 // //   username: results.username,
 // //   text: results.text,
@@ -27,7 +27,7 @@ var app = {
     });
 
     setInterval(function(){
-      app.fetch();}, 1000);
+      app.fetch();}, 2000);
 
   },
   send: function(message) {
